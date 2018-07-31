@@ -153,7 +153,7 @@ class Sequence:
 
 
     def drawGradientLine(self,imdraw,point_list,hue):
-
+        #draws a gradient from black at point 1 to the hue at point 2
         sections = 25
         (x1,y1,x2,y2) = point_list
         slope = (y2-y1)/(x2-x1)
@@ -165,7 +165,7 @@ class Sequence:
 
         for i in range(sections):
             col_string = 'hsl({},100%,{}%)'.format(hue,int(50*(i/sections)))
-            imdraw.line([x1 + i*step_size, y1 + i*step_size*slope, x1 + (i+1)*step_size, y1 + (i+1)*step_size*slope],width=3,fill=col_string)
+            imdraw.line([x1 + i*step_size, y1 + i*step_size*slope, x1 + (i+1)*step_size, y1 + (i+1)*step_size*slope],width=2,fill=col_string)
 
 
         #im.show()
@@ -181,13 +181,10 @@ class Sequence:
 
         max_diff = max([abs(self.seq[i+1]-self.seq[i]) for i in range(len(self.seq)-1)] + [abs(self.seq[-1]-self.seq[-2])])
         x_range = max(self.seq) - min(self.seq)
-        print(x_range)
         color_scale = 360/max_diff
 
         size_dilate = min( (img_size[0] - 2*margin)/x_range, (img_size[1]-2*margin)/max_diff)
-        print(size_dilate)
         x_margin = (img_size[0]-x_range*size_dilate)/2.0
-        print(x_margin)
         center_y = img_size[1]/2
         im = Image.new(mode='RGB',size=img_size,color='white')
         draw = ImageDraw.Draw(im)
@@ -203,7 +200,68 @@ class Sequence:
             y2 = dist/2
 
 
-            print(x1,y1,x2,y2)
+            x1 *= size_dilate
+            x2 *= size_dilate
+            y1 *= size_dilate
+            y2 *= size_dilate
+            y2 *= (-1)**i
+
+            x1 += x_margin
+            x2 += x_margin
+            y1 += center_y
+            y2 += center_y
+
+            midpoint = (x1 + x2)/2
+            #draw.line([x1,y1,midpoint,y2],width=3,fill='black')
+            #draw.line([x2,y1,midpoint,y2],width=3,fill='black')
+            if x1==x2:
+                break
+            self.drawGradientLine(draw,[x1,y1,midpoint,y2],int(color_scale*dist))
+            self.drawGradientLine(draw,[x2,y1,midpoint,y2],int(color_scale*dist))
+            #draw.arc([x1,y1,x2,y2],angle_offset+0,angle_offset+180,fill='hsl({},100%,45%)'.format(int(color_scale*dist)))
+
+
+
+        date_string = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        fname = '{}_tri_{}terms_x0={}_{}.png'.format(self.type,self.length,self.x0,date_string)
+        print(fname)
+        im.save(fname)
+
+        im.show()
+
+
+
+    def draw2Dlines(self):
+
+        img_size = (2*640,2*480)
+        im = Image.new(mode='RGB',size=img_size,color='white')
+        draw = ImageDraw.Draw(im)
+
+
+
+        margin = 0.05*img_size[0]
+
+        max_diff = max([abs(self.seq[i+1]-self.seq[i]) for i in range(len(self.seq)-1)] + [abs(self.seq[-1]-self.seq[-2])])
+        x_range = max(self.seq) - min(self.seq)
+        color_scale = 360/max_diff
+
+        #size_dilate = min( (img_size[0] - 2*margin)/x_range, (img_size[1]-2*margin)/max_diff)
+        size_dilate = (img_size[1] - 2*margin)/max(self.seq)
+        x_margin = (img_size[0]-x_range*size_dilate)/2.0
+        center_y = img_size[1]/2
+
+        x0 = self.seq[0]
+        min_term = min(self.seq)
+        for i in range(len(self.seq)-1):
+            pair = [self.seq[i],self.seq[i+1]]
+            #x1 = min(pair) - min_term
+            #x2 = max(pair) - min_term
+            x1 = pair[0]
+            x2 = pair[1]
+            dist = x2 - x1
+            y1 = 0
+            y2 = dist/2
+
 
             x1 *= size_dilate
             x2 *= size_dilate
@@ -216,15 +274,23 @@ class Sequence:
             y1 += center_y
             y2 += center_y
 
-            print(x1,y1,x2,y2)
-            print('lines:')
-            midpoint = (x1 + x2)/2
-            print([x1,y1,midpoint,y2])
-            print([x2,y1,midpoint,y2])
+            if i%2==0:
+                coords = [x1,margin,margin,x2]
+            else:
+                coords = [margin,x1,x2,margin]
+
+            #draw.line(coords,width=3,fill='black')
+
             #draw.line([x1,y1,midpoint,y2],width=3,fill='black')
             #draw.line([x2,y1,midpoint,y2],width=3,fill='black')
-            self.drawGradientLine(draw,[x1,y1,midpoint,y2],int(color_scale*dist))
-            self.drawGradientLine(draw,[x2,y1,midpoint,y2],int(color_scale*dist))
+            if x1==x2:
+                break
+
+            self.drawGradientLine(draw,coords,int(color_scale*dist))
+
+
+            #self.drawGradientLine(draw,[x1,y1,midpoint,y2],int(color_scale*dist))
+            #self.drawGradientLine(draw,[x2,y1,midpoint,y2],int(color_scale*dist))
             #draw.arc([x1,y1,x2,y2],angle_offset+0,angle_offset+180,fill='hsl({},100%,45%)'.format(int(color_scale*dist)))
 
 
@@ -232,7 +298,7 @@ class Sequence:
         date_string = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         fname = '{}_tri_{}terms_x0={}_{}.png'.format(self.type,self.length,self.x0,date_string)
         print(fname)
-        im.save(fname)
+        #im.save(fname)
 
         im.show()
 
