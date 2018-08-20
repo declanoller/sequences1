@@ -7,20 +7,26 @@ mySeq.drawGradientLine(None,[0,0,600,600],120)'''
 
 
 #mySeq = Sequence('georecaman',12,0)
-#mySeq = Sequence('recaman',200,0)
-mySeq = Sequence('collatz',80,100)
-#mySeq = Sequence('tent',80,.42)
-#mySeq = Sequence('juggler',80,27)
+mySeq = Sequence('recaman',1000,1)
+#mySeq = Sequence('collatz',400,97)
+#mySeq = Sequence('tent',80,.47)
+#mySeq = Sequence('juggler',80,37)
+#mySeq = Sequence('simple',4,30)
 
 mySeq.produceSeq()
+
+
+#mySeq.seq = [1,2,3,5,8,13,21]
+#print(mySeq.seq)
 #mySeq.drawTriangleSeq()
 #mySeq.seq = list(range(10))
-mySeq.seq = [i**2 for i in range(20)]
+#mySeq.seq = [i**2 for i in range(20)]
 #mySeq.seq = (max(mySeq.seq) - np.array(mySeq.seq)).tolist()
 
-mySeq.drawCircleMod()
-#mySeq.draw2Dlines()
-
+#mySeq.drawCircleSeq()
+#mySeq.drawCircleMod()
+mySeq.draw2Dlines()
+#mySeq.drawTriangleSeq()
 exit(0)
 
 for i in np.arange(.02,.48,.03):

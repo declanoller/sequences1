@@ -12,7 +12,8 @@ class Sequence:
         'collatz':self.collatz,
         'recaman':self.recaman,
         'georecaman':self.geoRecaman,
-        'juggler':self.juggler
+        'juggler':self.juggler,
+        'simple':self.simple
         }
         self.type = type
         self.length = length
@@ -65,6 +66,10 @@ class Sequence:
             return(x+skip)
 
 
+    def simple(self,x):
+        return(x + x*0.5*sin(x))
+
+
     def geoRecaman(self,x):
         if self.recamanSeq==None:
             self.recamanSeq = []
@@ -107,7 +112,7 @@ class Sequence:
         max_diff = max([abs(self.seq[i+1]-self.seq[i]) for i in range(len(self.seq)-1)])
         x_range = max(self.seq) - min(self.seq)
 
-        color_scale = 360/max_diff
+        #color_scale = 360/max_diff
 
         size_dilate = min( (img_size[0] - 2*margin)/x_range, (img_size[1]-2*margin)/max_diff)
 
@@ -220,11 +225,12 @@ class Sequence:
             y1 += center_y
             y2 += center_y
 
-            midpoint = (x1 + x2)/2
-            #draw.line([x1,y1,midpoint,y2],width=3,fill='black')
-            #draw.line([x2,y1,midpoint,y2],width=3,fill='black')
             if x1==x2:
                 break
+
+            midpoint = (x1 + x2)/2
+            '''draw.line([x1,y1,midpoint,y2],width=3,fill='black')
+            draw.line([x2,y1,midpoint,y2],width=3,fill='black')'''
             self.drawGradientLine(draw,[x1,y1,midpoint,y2],int(color_scale*dist))
             self.drawGradientLine(draw,[x2,y1,midpoint,y2],int(color_scale*dist))
             #draw.arc([x1,y1,x2,y2],angle_offset+0,angle_offset+180,fill='hsl({},100%,45%)'.format(int(color_scale*dist)))
@@ -321,9 +327,9 @@ class Sequence:
 
 
         date_string = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        fname = '{}_tri_{}terms_x0={}_{}.png'.format(self.type,self.length,self.x0,date_string)
+        fname = '{}_BOX_{}terms_x0={}_{}.png'.format(self.type,self.length,self.x0,date_string)
         print(fname)
-        #im.save(fname)
+        im.save(fname)
 
         im.show()
 
